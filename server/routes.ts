@@ -251,6 +251,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get configuration endpoint
+  app.get("/api/config", async (req, res) => {
+    try {
+      const config = {
+        serviceLayerUrl: SERVICE_LAYER_URL,
+        databaseName: DB_NAME,
+        supportedEnvironments: ["HANA", "MSSQL"],
+        sessionTimeout: 30
+      };
+
+      res.json({
+        success: true,
+        data: config
+      } as ApiResponse<any>);
+
+    } catch (error) {
+      console.error("Config fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch configuration"
+      } as ApiResponse<never>);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
