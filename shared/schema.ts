@@ -42,11 +42,7 @@ export const itemSchema = z.object({
   ItemName: z.string(),
   ItemType: z.string(),
   Valid: z.string(),
-  QuantityOnStock: z.number().optional(),
-  Price: z.number().optional(),
-  Currency: z.string().optional(),
-  ItemsGroupCode: z.number().optional(),
-  BarCode: z.string().optional()
+  QuantityOnStock: z.number().optional()
 });
 
 export type Item = z.infer<typeof itemSchema>;
@@ -58,11 +54,8 @@ export const salesOrderSchema = z.object({
   CardCode: z.string(),
   CardName: z.string(),
   DocDate: z.string(),
-  DocDueDate: z.string().optional(),
   DocTotal: z.number(),
-  Currency: z.string().optional(),
-  DocumentStatus: z.string(),
-  DocTotalSys: z.number().optional()
+  DocumentStatus: z.string()
 });
 
 export type SalesOrder = z.infer<typeof salesOrderSchema>;

@@ -123,7 +123,7 @@ export default function SalesOrders() {
                           {formatDate(order.DocDate)}
                         </div>
                         <div className="font-mono text-xs text-muted-foreground">
-                          {order.Currency || '$'} {order.DocTotal.toLocaleString()}
+                          ${order.DocTotal.toLocaleString()}
                         </div>
                       </div>
                     </CardContent>
@@ -221,24 +221,7 @@ export default function SalesOrders() {
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">Total Amount</label>
                           <p className="font-mono text-sm font-medium">
-                            {selectedOrder.Currency || '$'} {selectedOrder.DocTotal.toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Currency</label>
-                          <p className="font-mono text-sm">{selectedOrder.Currency || 'USD'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                          <p className="text-sm">{formatDate(selectedOrder.DocDueDate || '')}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">System Total</label>
-                          <p className="font-mono text-sm">
-                            {selectedOrder.DocTotalSys != null 
-                              ? `${selectedOrder.Currency || '$'} ${selectedOrder.DocTotalSys.toLocaleString()}`
-                              : 'N/A'
-                            }
+                            ${selectedOrder.DocTotal.toLocaleString()}
                           </p>
                         </div>
                       </div>

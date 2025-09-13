@@ -224,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as ApiResponse<never>);
       }
 
-      const response = await fetch(`${SERVICE_LAYER_URL}/Items?$select=ItemCode,ItemName,ItemType,Valid,QuantityOnStock,Price,Currency,ItemsGroupCode,BarCode&$top=50`, {
+      const response = await fetch(`${SERVICE_LAYER_URL}/Items?$select=ItemCode,ItemName,ItemType,Valid,QuantityOnStock&$top=50`, {
         headers: {
           "Cookie": `B1SESSION=${session.sessionId}`
         }
@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as ApiResponse<never>);
       }
 
-      const response = await fetch(`${SERVICE_LAYER_URL}/Orders?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocDueDate,DocTotal,Currency,DocumentStatus,DocTotalSys&$top=50`, {
+      const response = await fetch(`${SERVICE_LAYER_URL}/Orders?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocTotal,DocumentStatus&$top=50`, {
         headers: {
           "Cookie": `B1SESSION=${session.sessionId}`
         }

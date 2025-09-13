@@ -205,23 +205,6 @@ export default function Items() {
                           <label className="text-sm font-medium text-muted-foreground">Quantity on Stock</label>
                           <p className="font-mono text-sm">{selectedItem.QuantityOnStock || 0}</p>
                         </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Price</label>
-                          <p className="font-mono text-sm">
-                            {selectedItem.Price != null 
-                              ? `${selectedItem.Currency || '$'} ${selectedItem.Price.toLocaleString()}`
-                              : 'N/A'
-                            }
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Bar Code</label>
-                          <p className="font-mono text-sm">{selectedItem.BarCode || 'N/A'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Items Group Code</label>
-                          <p className="text-sm">{selectedItem.ItemsGroupCode || 'N/A'}</p>
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
