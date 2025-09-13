@@ -1,0 +1,158 @@
+Here’s a description / technical plan for developing a web application for SAP B1 Addon using Replit with the SAP B1 Service Layer.
+This will help you establish user login, database login, and flexible credential handling (config file instead of hardcoding).
+
+🔹 Project Objective
+
+Develop a web-based SAP B1 Addon prototype using Replit as the development environment.
+The application will authenticate users via the SAP Business One Service Layer, support both MSSQL and HANA, and securely manage credentials through a config file.
+
+🔹 Key Requirements
+
+Technology Stack
+
+Backend: Python (Flask or FastAPI) on Replit
+
+Frontend: HTML/CSS/JS (or React if preferred)
+
+API Communication: REST calls to SAP B1 Service Layer
+
+Database: SAP B1 (HANA or MSSQL via Service Layer)
+
+Config: config.json / .env file for credentials
+
+Login Functionality
+
+Step 1: User Login
+
+The user enters username, password, database selection.
+
+App verifies credentials using SAP B1 Service Layer login API.
+
+Step 2: Database Login
+
+Database name comes from config (ZZZ_IT_TEST_LIVE_DB).
+
+Environment choice: HANA or MSSQL.
+
+Step 3: Session Handling
+
+Service Layer returns a SessionId.
+
+Store session securely (in memory / Redis / secure cookie).
+
+Credential Handling
+
+Service Layer URL: https://sap.itlobby.com:50000/b1s/v1
+
+Credentials stored in config file (config.json / .env) – not hardcoded.
+
+Example config.json:
+
+{
+  "ServiceLayerURL": "https://sap.itlobby.com:50000/b1s/v1",
+  "DatabaseName": "ZZZ_IT_TEST_LIVE_DB",
+  "Environments": {
+    "HANA": { "User": "manager", "Password": "Ea@12345" },
+    "MSSQL": { "User": "manager", "Password": "Ea@12345" }
+  }
+}
+
+
+SAP B1 Service Layer Login API
+
+Request
+
+POST https://sap.itlobby.com:50000/b1s/v1/Login
+Content-Type: application/json
+
+{
+  "UserName": "manager",
+  "Password": "Ea@12345",
+  "CompanyDB": "ZZZ_IT_TEST_LIVE_DB"
+}
+
+
+Response
+
+{
+  "SessionId": "abcd1234-session-token",
+  "Version": "1000180",
+  "SessionTimeout": 30
+}
+
+
+Web Application Flow
+
+User opens app → Login Page.
+
+Enter credentials → Backend calls Service Layer /Login.
+
+If success → Redirect to dashboard.
+
+Dashboard fetches user data from SAP B1 DB via Service Layer endpoints (e.g., /BusinessPartners, /Items, /Orders).
+
+🔹 Replit Project Setup
+
+Create a Flask Project on Replit.
+
+Add requirements.txt:
+
+flask
+requests
+python-dotenv
+
+
+Create .env for sensitive info:
+
+SL_URL=https://sap.itlobby.com:50000/b1s/v1
+DB_NAME=ZZZ_IT_TEST_LIVE_DB
+DB_USER=manager
+DB_PASS=Ea@12345
+
+
+Create main.py with login route:
+
+import os, requests
+from flask import Flask, request, jsonify, session
+from dotenv import load_dotenv
+
+load_dotenv()
+app = Flask(__name__)
+app.secret_key = "supersecret"  # should be rotated
+
+SERVICE_LAYER_URL = os.getenv("SL_URL")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    payload = {
+        "UserName": data.get("username", DB_USER),
+        "Password": data.get("password", DB_PASS),
+        "CompanyDB": DB_NAME
+    }
+    r = requests.post(f"{SERVICE_LAYER_URL}/Login", json=payload, verify=False)
+    if r.status_code == 200:
+        session["SL_SESSION"] = r.json()["SessionId"]
+        return jsonify({"message": "Login successful"})
+    return jsonify({"error": r.text}), 401
+
+@app.route("/userdata", methods=["GET"])
+def userdata():
+    if "SL_SESSION" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+    headers = {"Cookie": f"B1SESSION={session['SL_SESSION']}"}
+    r = requests.get(f"{SERVICE_LAYER_URL}/BusinessPartners", headers=headers, verify=False)
+    return jsonify(r.json())
+
+🔹 Next Steps (After Login)
+
+Build dashboards to view user-specific data (customers, items, sales orders).
+
+Add role-based access control.
+
+Handle session renewal if timeout occurs.
+
+Provide a UI for selecting HANA or MSSQL environment.
