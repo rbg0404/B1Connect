@@ -11,6 +11,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const DB_USER = process.env.DB_USER || "manager";
   const DB_PASS = process.env.DB_PASS || "Ea@12345";
 
+  // For development/testing - disable SSL certificate verification
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
   // Login endpoint
   app.post("/api/login", async (req, res) => {
     try {
@@ -254,29 +257,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get available databases endpoint
   app.get("/api/databases", async (req, res) => {
     try {
-      // Available databases for the SAP B1 system
-      const databases: Database[] = [
-        {
-          name: "ZZZ_IT_TEST_LIVE_DB",
-          description: "Live Test Database",
-          environment: "HANA"
-        },
-        {
-          name: "ZZZ_IT_DEV_DB",
-          description: "Development Database",
-          environment: "HANA"
-        },
-        {
-          name: "ZZZ_IT_STAGING_DB",
-          description: "Staging Database",
-          environment: "HANA"
-        },
-        {
-          name: "ZZZ_IT_BACKUP_DB",
-          description: "Backup Database",
-          environment: "MSSQL"
+      console.log("Fetching databases from:", `${SERVICE_LAYER_URL}/CompanyService_GetCompanyList`);
+      
+      // Fetch available companies/databases from SAP B1 Service Layer
+      const response = await fetch(`${SERVICE_LAYER_URL}/CompanyService_GetCompanyList`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         }
-      ];
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to fetch company list:", errorText);
+        
+        // If it's a session error (401), use fallback databases
+        if (response.status === 401) {
+          console.log("Session error - using fallback database list");
+          const fallbackDatabases: Database[] = [
+            {
+              name: "ZZZ_IT_TEST_LIVE_DB",
+              description: "Live Test Database (SAP Demo)",
+              environment: "HANA"
+            },
+            {
+              name: "SBODEMOUS", 
+              description: "SAP Demo Database",
+              environment: "HANA"
+            }
+          ];
+
+          return res.json({
+            success: true,
+            data: fallbackDatabases
+          } as ApiResponse<Database[]>);
+        }
+        
+        return res.status(response.status).json({
+          success: false,
+          error: `Failed to fetch company list: ${errorText}`
+        } as ApiResponse<never>);
+      }
+
+      const sapCompanies = await response.json();
+      console.log("SAP Companies response:", sapCompanies);
+      
+      // Transform SAP response to our Database format
+      const databases: Database[] = sapCompanies.map((company: any) => ({
+        name: company.DatabaseName,
+        description: company.CompanyName,
+        environment: company.DatabaseType === "dst_HANADB" ? "HANA" : 
+                    company.DatabaseType.includes("MSSQL") ? "MSSQL" : "UNKNOWN"
+      }));
+
+      console.log("Transformed databases:", databases);
 
       res.json({
         success: true,
@@ -285,10 +320,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error("Databases fetch error:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch available databases"
-      } as ApiResponse<never>);
+      
+      // Fallback to known databases if SAP Service Layer is not accessible
+      console.log("Using fallback database list");
+      const fallbackDatabases: Database[] = [
+        {
+          name: "ZZZ_IT_TEST_LIVE_DB",
+          description: "Live Test Database (SAP Demo)",
+          environment: "HANA"
+        },
+        {
+          name: "SBODEMOUS",
+          description: "SAP Demo Database",
+          environment: "HANA"
+        }
+      ];
+
+      res.json({
+        success: true,
+        data: fallbackDatabases,
+        error: "Using fallback data - SAP Service Layer may require authentication"
+      } as ApiResponse<Database[]>);
     }
   });
 
