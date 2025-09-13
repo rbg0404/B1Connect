@@ -1,0 +1,114 @@
+Perfect 👍 you’re thinking the right way. Since Service Layer doesn’t give the company list directly, the practical approach (Option B) is to store allowed databases in a config file (e.g. config.json) and let your Replit app read from it.
+
+Here’s how you can do it step by step:
+
+🔹 1. Create config.json
+
+In your Replit project, create a file called config.json with the allowed company DBs:
+
+{
+  "ServiceLayerURL": "https://sap.itlobby.com:50000/b1s/v1",
+  "Databases": [
+    {
+      "Name": "IT Live DB",
+      "Database": "ZZZ_IT_TEST_LIVE_DB",
+      "Type": "MSSQL2019"
+    },
+    {
+      "Name": "SAP Demo DB",
+      "Database": "SBODEMOUS",
+      "Type": "HANADB"
+    }
+  ],
+  "DefaultUser": "manager",
+  "DefaultPassword": "Ea@12345"
+}
+
+
+Name → Friendly name to show on the login dropdown.
+
+Database → Actual DB name needed for Service Layer login.
+
+Type → Either MSSQLxxxx or HANADB (for info only).
+
+🔹 2. Load config.json in Replit (Python Flask Example)
+import json
+
+# Load config.json
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+SERVICE_LAYER_URL = config["ServiceLayerURL"]
+DATABASES = config["Databases"]
+DEFAULT_USER = config["DefaultUser"]
+DEFAULT_PASS = config["DefaultPassword"]
+
+# Example: Print the databases
+print("Available DBs:")
+for db in DATABASES:
+    print(f"- {db['Name']} ({db['Database']}, {db['Type']})")
+
+🔹 3. Build a Login Dropdown (Flask + HTML Example)
+Flask Route (main.py)
+from flask import Flask, render_template, request, redirect
+import json
+
+app = Flask(__name__)
+
+# Load config
+with open("config.json") as f:
+    config = json.load(f)
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        db_choice = request.form.get("database")
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Get the DB info
+        db_info = next((db for db in config["Databases"] if db["Database"] == db_choice), None)
+
+        return f"Selected DB: {db_info['Name']} with user {username}"
+
+    return render_template("login.html", databases=config["Databases"])
+
+Login Page (templates/login.html)
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SAP B1 Login</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <form method="POST">
+    <label>Database:</label>
+    <select name="database">
+      {% for db in databases %}
+      <option value="{{ db.Database }}">{{ db.Name }} ({{ db.Type }})</option>
+      {% endfor %}
+    </select><br><br>
+
+    <label>User:</label>
+    <input type="text" name="username" value="{{ config.DefaultUser }}"><br><br>
+
+    <label>Password:</label>
+    <input type="password" name="password" value="{{ config.DefaultPassword }}"><br><br>
+
+    <button type="submit">Login</button>
+  </form>
+</body>
+</html>
+
+🔹 4. How This Works in Replit
+
+When the user opens the login page → The app reads config.json → populates the database dropdown.
+
+The user selects a DB + enters credentials → On submit, you use those values to call Service Layer /Login.
+
+No hardcoding needed.
+
+✅ This way, you’ve told Replit (via your Python app) to always use the DB list from config.json.
+So if you need to add or remove databases → just edit config.json, no code changes required.
+
+👉 Do you want me to extend this so that after login, the app automatically saves the chosen DB and session ID for future API calls (like /BusinessPartners, /Items)?
