@@ -4,32 +4,32 @@
     {
       "Name": "Al Rudha Al Tijaeria",
       "Database": "ZZZ_IT_TEST_LIVE_DB",
-      "Type": "MSSQL2019"
+      "Type": "HANADB"
     },
     {
       "Name": "GLD IT Live",
       "Database": "GLD_IT_LIVE_DB",
-      "Type": "MSSQL2019"
+      "Type": "HANADB"
     },
     {
       "Name": "POS System",
       "Database": "POS",
-      "Type": "MSSQL2019"
+      "Type": "HANADB"
     },
     {
       "Name": "GLD IT Test 2",
       "Database": "ZZZ_TEST_IT2_DB",
-      "Type": "MSSQL2019"
+      "Type": "HANADB"
     },
     {
       "Name": "IT Test Browse",
       "Database": "ZZZ_IT_TEST_BROWSE",
-      "Type": "MSSQL2019"
+      "Type": "HANADB"
     },
     {
       "Name": "IT Warehouse Test",
       "Database": "ZZZ_IT_WHTEST_LIVE",
-      "Type": "MSSQL2019"
+      "Type": "HANADB"
     }
   ],
   "DefaultUser": "manager",

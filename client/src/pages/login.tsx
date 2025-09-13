@@ -28,7 +28,7 @@ export default function LoginPage() {
     defaultValues: {
       username: "manager",
       password: "Ea@12345",
-      environment: "MSSQL",
+      environment: "HANA",
       database: "ZZZ_IT_TEST_LIVE_DB"
     }
   });
