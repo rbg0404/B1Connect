@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { sapLoginSchema, type SapSession, type ApiResponse, type BusinessPartner, type DashboardStats, type Database } from "@shared/schema";
+import { sapLoginSchema, type SapSession, type ApiResponse, type BusinessPartner, type Item, type SalesOrder, type DashboardStats, type Database } from "@shared/schema";
 import { z } from "zod";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -200,6 +200,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         error: "Failed to fetch business partners"
+      } as ApiResponse<never>);
+    }
+  });
+
+  // Get items
+  app.get("/api/items", async (req, res) => {
+    try {
+      const sessionId = req.cookies.sap_session;
+      if (!sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "No active session"
+        } as ApiResponse<never>);
+      }
+
+      const session = await storage.getSession(sessionId);
+      if (!session) {
+        res.clearCookie('sap_session');
+        return res.status(401).json({
+          success: false,
+          error: "Session expired"
+        } as ApiResponse<never>);
+      }
+
+      const response = await fetch(`${SERVICE_LAYER_URL}/Items?$select=ItemCode,ItemName,ItemType,Valid,QuantityOnStock,Price,Currency,ItemsGroupCode,BarCode&$top=50`, {
+        headers: {
+          "Cookie": `B1SESSION=${session.sessionId}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return res.status(response.status).json({
+          success: false,
+          error: `Failed to fetch items: ${errorText}`
+        } as ApiResponse<never>);
+      }
+
+      const sapData = await response.json();
+      
+      res.json({
+        success: true,
+        data: sapData.value || []
+      } as ApiResponse<Item[]>);
+
+    } catch (error) {
+      console.error("Items fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch items"
+      } as ApiResponse<never>);
+    }
+  });
+
+  // Get sales orders
+  app.get("/api/sales-orders", async (req, res) => {
+    try {
+      const sessionId = req.cookies.sap_session;
+      if (!sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "No active session"
+        } as ApiResponse<never>);
+      }
+
+      const session = await storage.getSession(sessionId);
+      if (!session) {
+        res.clearCookie('sap_session');
+        return res.status(401).json({
+          success: false,
+          error: "Session expired"
+        } as ApiResponse<never>);
+      }
+
+      const response = await fetch(`${SERVICE_LAYER_URL}/Orders?$select=DocEntry,DocNum,CardCode,CardName,DocDate,DocDueDate,DocTotal,Currency,DocumentStatus,DocTotalSys&$top=50`, {
+        headers: {
+          "Cookie": `B1SESSION=${session.sessionId}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return res.status(response.status).json({
+          success: false,
+          error: `Failed to fetch sales orders: ${errorText}`
+        } as ApiResponse<never>);
+      }
+
+      const sapData = await response.json();
+      
+      res.json({
+        success: true,
+        data: sapData.value || []
+      } as ApiResponse<SalesOrder[]>);
+
+    } catch (error) {
+      console.error("Sales orders fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch sales orders"
       } as ApiResponse<never>);
     }
   });

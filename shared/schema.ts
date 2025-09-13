@@ -36,6 +36,37 @@ export const businessPartnerSchema = z.object({
 
 export type BusinessPartner = z.infer<typeof businessPartnerSchema>;
 
+// Item from SAP B1
+export const itemSchema = z.object({
+  ItemCode: z.string(),
+  ItemName: z.string(),
+  ItemType: z.string(),
+  Valid: z.string(),
+  QuantityOnStock: z.number().optional(),
+  Price: z.number().optional(),
+  Currency: z.string().optional(),
+  ItemsGroupCode: z.number().optional(),
+  BarCode: z.string().optional()
+});
+
+export type Item = z.infer<typeof itemSchema>;
+
+// Sales Order from SAP B1
+export const salesOrderSchema = z.object({
+  DocEntry: z.number(),
+  DocNum: z.number(),
+  CardCode: z.string(),
+  CardName: z.string(),
+  DocDate: z.string(),
+  DocDueDate: z.string().optional(),
+  DocTotal: z.number(),
+  Currency: z.string().optional(),
+  DocumentStatus: z.string(),
+  DocTotalSys: z.number().optional()
+});
+
+export type SalesOrder = z.infer<typeof salesOrderSchema>;
+
 // Dashboard Stats
 export const dashboardStatsSchema = z.object({
   totalPartners: z.number(),
