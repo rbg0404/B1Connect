@@ -6,7 +6,8 @@ export const sapLoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
   environment: z.enum(["HANA", "MSSQL"], {
     required_error: "Please select a database environment"
-  })
+  }),
+  database: z.string().min(1, "Please select a database")
 });
 
 export type SapLoginRequest = z.infer<typeof sapLoginSchema>;
@@ -57,3 +58,12 @@ export type ApiResponse<T> = {
   data?: T;
   error?: string;
 };
+
+// Available Database
+export const databaseSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  environment: z.string()
+});
+
+export type Database = z.infer<typeof databaseSchema>;

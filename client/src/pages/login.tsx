@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
-import { sapLoginSchema, type SapLoginRequest } from "@shared/schema";
+import { sapLoginSchema, type SapLoginRequest, type Database } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function LoginPage() {
@@ -20,15 +20,37 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [databases, setDatabases] = useState<Database[]>([]);
+  const [loadingDatabases, setLoadingDatabases] = useState(true);
 
   const form = useForm<SapLoginRequest>({
     resolver: zodResolver(sapLoginSchema),
     defaultValues: {
       username: "manager",
       password: "Ea@12345",
-      environment: "HANA"
+      environment: "HANA",
+      database: "ZZZ_IT_TEST_LIVE_DB"
     }
   });
+
+  useEffect(() => {
+    const fetchDatabases = async () => {
+      try {
+        setLoadingDatabases(true);
+        const response = await apiRequest("GET", "/api/databases");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setDatabases(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch databases:", error);
+      } finally {
+        setLoadingDatabases(false);
+      }
+    };
+
+    fetchDatabases();
+  }, []);
 
   const onSubmit = async (data: SapLoginRequest) => {
     setIsLoading(true);
@@ -137,6 +159,34 @@ export default function LoginPage() {
 
                 <FormField
                   control={form.control}
+                  name="database"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Database</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingDatabases}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-database">
+                            <SelectValue placeholder={loadingDatabases ? "Loading databases..." : "Select Database"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {databases.map((db) => (
+                            <SelectItem key={db.name} value={db.name}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{db.name}</span>
+                                <span className="text-xs text-muted-foreground">{db.description} ({db.environment})</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="environment"
                   render={({ field }) => (
                     <FormItem>
@@ -194,7 +244,7 @@ export default function LoginPage() {
             <div className="mt-8 pt-6 border-t border-border">
               <div className="text-center">
                 <p className="text-xs text-muted-foreground">
-                  Database: <span className="font-medium">ZZZ_IT_TEST_LIVE_DB</span>
+                  Selected Database: <span className="font-medium">{form.watch('database') || 'None selected'}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Session timeout: 30 minutes

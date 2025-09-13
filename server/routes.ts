@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { sapLoginSchema, type SapSession, type ApiResponse, type BusinessPartner, type DashboardStats } from "@shared/schema";
+import { sapLoginSchema, type SapSession, type ApiResponse, type BusinessPartner, type DashboardStats, type Database } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -19,7 +19,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const payload = {
         UserName: loginData.username,
         Password: loginData.password,
-        CompanyDB: DB_NAME
+        CompanyDB: loginData.database
       };
 
       const response = await fetch(`${SERVICE_LAYER_URL}/Login`, {
@@ -247,6 +247,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         error: "Failed to fetch dashboard stats"
+      } as ApiResponse<never>);
+    }
+  });
+
+  // Get available databases endpoint
+  app.get("/api/databases", async (req, res) => {
+    try {
+      // Available databases for the SAP B1 system
+      const databases: Database[] = [
+        {
+          name: "ZZZ_IT_TEST_LIVE_DB",
+          description: "Live Test Database",
+          environment: "HANA"
+        },
+        {
+          name: "ZZZ_IT_DEV_DB",
+          description: "Development Database",
+          environment: "HANA"
+        },
+        {
+          name: "ZZZ_IT_STAGING_DB",
+          description: "Staging Database",
+          environment: "HANA"
+        },
+        {
+          name: "ZZZ_IT_BACKUP_DB",
+          description: "Backup Database",
+          environment: "MSSQL"
+        }
+      ];
+
+      res.json({
+        success: true,
+        data: databases
+      } as ApiResponse<Database[]>);
+
+    } catch (error) {
+      console.error("Databases fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch available databases"
       } as ApiResponse<never>);
     }
   });
