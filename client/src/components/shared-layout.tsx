@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Cog, Users, Box, ShoppingCart, Clock, LogOut } from "lucide-react";
+import { Cog, Users, Box, ShoppingCart, Clock, LogOut, MapPin, Building, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
@@ -70,6 +70,9 @@ export default function SharedLayout({ children, currentPage }: SharedLayoutProp
     { path: "/business-partners", icon: Users, label: "Business Partners", id: "nav-partners" },
     { path: "/items", icon: Box, label: "Items", id: "nav-items" },
     { path: "/sales-orders", icon: ShoppingCart, label: "Sales Orders", id: "nav-orders" },
+    { path: "/location-master", icon: MapPin, label: "Location Master", id: "nav-locations" },
+    { path: "/branch-master", icon: Building, label: "Branch Master", id: "nav-branches" },
+    { path: "/warehouse-master", icon: Warehouse, label: "Warehouse Master", id: "nav-warehouses" },
     { path: "/configuration", icon: Cog, label: "Configuration", id: "nav-config" }
   ];
 
