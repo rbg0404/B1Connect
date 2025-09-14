@@ -9,7 +9,6 @@ import { MapPin } from "lucide-react";
 interface Location {
   Code: string;
   Name: string;
-  WhsCode?: string;
   Disabled?: string;
   Locked?: string;
   U_LocationType?: string;
@@ -107,12 +106,15 @@ export default function LocationMaster() {
                       <p className="text-lg" data-testid="location-name">{selectedLocation.Name}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Warehouse Code</label>
-                      <p className="text-lg" data-testid="location-warehouse">{selectedLocation.WhsCode || "N/A"}</p>
-                    </div>
-                    <div>
                       <label className="text-sm font-medium text-muted-foreground">Location Type</label>
                       <p className="text-lg" data-testid="location-type">{selectedLocation.U_LocationType || "N/A"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Status</label>
+                      <p className="text-lg" data-testid="location-status">
+                        {selectedLocation.Disabled === "Y" ? "Disabled" : "Active"}
+                        {selectedLocation.Locked === "Y" && " (Locked)"}
+                      </p>
                     </div>
                   </div>
                   

@@ -414,7 +414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as ApiResponse<never>);
       }
 
-      const response = await fetch(`${SERVICE_LAYER_URL}/OLCT?$select=Code,Name,WhsCode,Disabled,Locked,U_LocationType&$top=100`, {
+      const response = await fetch(`${SERVICE_LAYER_URL}/Locations?$top=100`, {
         headers: {
           "Cookie": `B1SESSION=${session.sessionId}`
         }
@@ -464,7 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as ApiResponse<never>);
       }
 
-      const response = await fetch(`${SERVICE_LAYER_URL}/OUBR?$select=Code,Name,Description,Disabled,Address,City,Country&$top=100`, {
+      const response = await fetch(`${SERVICE_LAYER_URL}/Branches?$top=100`, {
         headers: {
           "Cookie": `B1SESSION=${session.sessionId}`
         }
@@ -480,9 +480,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const sapData = await response.json();
       
+      // Map Service Layer fields to UI expected format for branches
+      const mappedData = (sapData.value || []).map((branch: any) => ({
+        Code: branch.Code,
+        Name: branch.Name,
+        Description: branch.Name, // Use Name as Description fallback
+        Disabled: branch.Disabled,
+        Address: branch.Street, // Map Street to Address for UI
+        City: branch.City,
+        Country: branch.Country
+      }));
+      
       res.json({
         success: true,
-        data: sapData.value || []
+        data: mappedData
       } as ApiResponse<any[]>);
 
     } catch (error) {
@@ -514,7 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } as ApiResponse<never>);
       }
 
-      const response = await fetch(`${SERVICE_LAYER_URL}/OWHS?$select=WhsCode,WhsName,Location,Inactive,Locked,Address,Country,City,BinActivat&$top=100`, {
+      const response = await fetch(`${SERVICE_LAYER_URL}/Warehouses?$top=100`, {
         headers: {
           "Cookie": `B1SESSION=${session.sessionId}`
         }
@@ -530,9 +541,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const sapData = await response.json();
       
+      // Map Service Layer fields to UI expected format for warehouses
+      const mappedData = (sapData.value || []).map((warehouse: any) => ({
+        WhsCode: warehouse.WarehouseCode,
+        WhsName: warehouse.WarehouseName,
+        Location: warehouse.Location,
+        Inactive: warehouse.Inactive,
+        Locked: warehouse.Locked,
+        Address: warehouse.Street,
+        Country: warehouse.Country,
+        City: warehouse.City,
+        BinActivat: warehouse.BinActivat
+      }));
+      
       res.json({
         success: true,
-        data: sapData.value || []
+        data: mappedData
       } as ApiResponse<any[]>);
 
     } catch (error) {
