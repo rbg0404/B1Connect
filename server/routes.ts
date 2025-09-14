@@ -394,6 +394,156 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get locations (OLCT)
+  app.get("/api/locations", async (req, res) => {
+    try {
+      const sessionId = req.cookies.sap_session;
+      if (!sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "No active session"
+        } as ApiResponse<never>);
+      }
+
+      const session = await storage.getSession(sessionId);
+      if (!session) {
+        res.clearCookie('sap_session');
+        return res.status(401).json({
+          success: false,
+          error: "Session expired"
+        } as ApiResponse<never>);
+      }
+
+      const response = await fetch(`${SERVICE_LAYER_URL}/OLCT?$select=Code,Name,WhsCode,Disabled,Locked,U_LocationType&$top=100`, {
+        headers: {
+          "Cookie": `B1SESSION=${session.sessionId}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return res.status(response.status).json({
+          success: false,
+          error: `Failed to fetch locations: ${errorText}`
+        } as ApiResponse<never>);
+      }
+
+      const sapData = await response.json();
+      
+      res.json({
+        success: true,
+        data: sapData.value || []
+      } as ApiResponse<any[]>);
+
+    } catch (error) {
+      console.error("Locations fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch locations"
+      } as ApiResponse<never>);
+    }
+  });
+
+  // Get branches (OUBR)
+  app.get("/api/branches", async (req, res) => {
+    try {
+      const sessionId = req.cookies.sap_session;
+      if (!sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "No active session"
+        } as ApiResponse<never>);
+      }
+
+      const session = await storage.getSession(sessionId);
+      if (!session) {
+        res.clearCookie('sap_session');
+        return res.status(401).json({
+          success: false,
+          error: "Session expired"
+        } as ApiResponse<never>);
+      }
+
+      const response = await fetch(`${SERVICE_LAYER_URL}/OUBR?$select=Code,Name,Description,Disabled,Address,City,Country&$top=100`, {
+        headers: {
+          "Cookie": `B1SESSION=${session.sessionId}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return res.status(response.status).json({
+          success: false,
+          error: `Failed to fetch branches: ${errorText}`
+        } as ApiResponse<never>);
+      }
+
+      const sapData = await response.json();
+      
+      res.json({
+        success: true,
+        data: sapData.value || []
+      } as ApiResponse<any[]>);
+
+    } catch (error) {
+      console.error("Branches fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch branches"
+      } as ApiResponse<never>);
+    }
+  });
+
+  // Get warehouses (OWHS)
+  app.get("/api/warehouses", async (req, res) => {
+    try {
+      const sessionId = req.cookies.sap_session;
+      if (!sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "No active session"
+        } as ApiResponse<never>);
+      }
+
+      const session = await storage.getSession(sessionId);
+      if (!session) {
+        res.clearCookie('sap_session');
+        return res.status(401).json({
+          success: false,
+          error: "Session expired"
+        } as ApiResponse<never>);
+      }
+
+      const response = await fetch(`${SERVICE_LAYER_URL}/OWHS?$select=WhsCode,WhsName,Location,Inactive,Locked,Address,Country,City,BinActivat&$top=100`, {
+        headers: {
+          "Cookie": `B1SESSION=${session.sessionId}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return res.status(response.status).json({
+          success: false,
+          error: `Failed to fetch warehouses: ${errorText}`
+        } as ApiResponse<never>);
+      }
+
+      const sapData = await response.json();
+      
+      res.json({
+        success: true,
+        data: sapData.value || []
+      } as ApiResponse<any[]>);
+
+    } catch (error) {
+      console.error("Warehouses fetch error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch warehouses"
+      } as ApiResponse<never>);
+    }
+  });
+
   // Get configuration endpoint
   app.get("/api/config", async (req, res) => {
     try {
