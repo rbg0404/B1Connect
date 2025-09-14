@@ -22,7 +22,7 @@ export default function LocationMaster() {
     queryKey: ["/api/locations"],
   });
 
-  const locations = locationsData?.data || [];
+  const locations = (locationsData as any)?.data || [];
 
   return (
     <SharedLayout currentPage="/location-master">

@@ -25,7 +25,7 @@ export default function WarehouseMaster() {
     queryKey: ["/api/warehouses"],
   });
 
-  const warehouses = warehousesData?.data || [];
+  const warehouses = (warehousesData as any)?.data || [];
 
   return (
     <SharedLayout currentPage="/warehouse-master">

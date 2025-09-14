@@ -23,7 +23,7 @@ export default function BranchMaster() {
     queryKey: ["/api/branches"],
   });
 
-  const branches = branchesData?.data || [];
+  const branches = (branchesData as any)?.data || [];
 
   return (
     <SharedLayout currentPage="/branch-master">
