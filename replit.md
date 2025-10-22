@@ -1,6 +1,6 @@
 # Overview
 
-This is a SAP Business One (B1) web application that provides a modern interface for interacting with SAP B1 data through the Service Layer API. The application features user authentication, dashboard analytics, and business partner management with support for both HANA and MSSQL database environments.
+This is a SAP Business One (B1) application that provides a modern interface for interacting with SAP B1 data through the Service Layer API. The application has been migrated to use Flutter for the frontend and Python Flask for the backend. It features user authentication, dashboard analytics, business partner management, items management, sales orders, and support for both HANA and MSSQL database environments.
 
 # User Preferences
 
@@ -9,26 +9,27 @@ Preferred communication style: Simple, everyday language.
 # System Architecture
 
 ## Frontend Architecture
-- **Framework**: React 18 with TypeScript using Vite for development and building
-- **Routing**: Wouter for client-side routing with pages for login, dashboard, and not-found
-- **State Management**: TanStack Query (React Query) for server state management and caching
-- **UI Library**: Radix UI components with Tailwind CSS for styling, following the shadcn/ui design system
-- **Form Handling**: React Hook Form with Zod validation for type-safe form management
-- **Styling**: Tailwind CSS with CSS custom properties for theming and dark mode support
+- **Framework**: Flutter for cross-platform UI with web support
+- **State Management**: Provider for state management and dependency injection
+- **UI Components**: Material Design 3 components with custom widgets
+- **HTTP Client**: http package for API communication
+- **Charts**: fl_chart for data visualization
+- **Routing**: Navigator for screen navigation
+- **Pages**: Login, Dashboard, Business Partners, Items, Sales Orders, Location Master, Branch Master, Warehouse Master
 
 ## Backend Architecture
-- **Runtime**: Node.js with Express.js server
-- **Language**: TypeScript with ESM modules
-- **API Pattern**: RESTful API with centralized route handling in `/server/routes.ts`
+- **Runtime**: Python 3.11 with Flask web framework
+- **Language**: Python 3.11
+- **API Pattern**: RESTful API with route handling in `/backend/app.py`
 - **Session Management**: In-memory session storage with automatic cleanup of expired sessions
-- **Validation**: Zod schemas for request/response validation shared between client and server
-- **Development**: Hot reload with Vite middleware integration for seamless full-stack development
+- **HTTP Client**: requests library for SAP Service Layer communication
+- **CORS**: Flask-CORS for cross-origin resource sharing
+- **Development**: Flask debug mode with hot reload
 
 ## Data Storage Solutions
-- **Database**: PostgreSQL configured through Drizzle ORM with support for migrations
-- **ORM**: Drizzle ORM with schema definitions in `/shared/schema.ts`
-- **SAP Integration**: Direct communication with SAP B1 Service Layer API for business data
-- **Session Storage**: In-memory storage for user sessions with configurable timeouts
+- **SAP Integration**: Direct communication with SAP B1 Service Layer API for all business data
+- **Session Storage**: In-memory Python dictionary for user sessions with automatic expiration cleanup
+- **Configuration**: JSON-based configuration file (config.json) for SAP connection settings and database list
 
 ## Authentication and Authorization
 - **Authentication Method**: SAP B1 Service Layer authentication using username/password
@@ -56,14 +57,11 @@ Preferred communication style: Simple, everyday language.
 - **Class Variance Authority**: Type-safe variant API for component styling
 
 ### Development and Build Tools
-- **Vite**: Fast build tool and development server with HMR
-- **TypeScript**: Type safety across the entire application stack
-- **ESBuild**: Fast bundling for production builds
-- **PostCSS**: CSS processing with Tailwind integration
+- **Flutter SDK**: Cross-platform UI framework with web support
+- **Python**: Backend runtime environment with package management via pip/uv
+- **Flask**: Lightweight web framework for Python
 
 ### Runtime Dependencies
-- **TanStack Query**: Server state management with caching and synchronization
-- **React Hook Form**: Performant form library with minimal re-renders
-- **Zod**: Schema validation for type-safe API contracts
-- **Date-fns**: Date manipulation utilities
-- **Cookie Parser**: Express middleware for cookie handling
+- **Flutter Dependencies**: provider, http, fl_chart, intl
+- **Python Dependencies**: Flask, Flask-CORS, requests, python-dotenv
+- **Build Tools**: build_flutter.sh script for building Flutter web application

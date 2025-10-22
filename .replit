@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web"]
+modules = ["nodejs-20", "web", "python-3.11"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
@@ -15,14 +15,6 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 33225
-externalPort = 4200
-
-[[ports]]
-localPort = 38221
-externalPort = 3000
-
-[[ports]]
 localPort = 39291
 externalPort = 3003
 
@@ -33,6 +25,10 @@ externalPort = 3002
 [[ports]]
 localPort = 43621
 externalPort = 3001
+
+[[ports]]
+localPort = 44815
+externalPort = 3000
 
 [env]
 PORT = "5000"
@@ -47,13 +43,19 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "SAP B1 Application"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "SAP B1 Application"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "cd backend && python app.py"
 waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[agent]
+expertMode = true
